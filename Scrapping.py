@@ -185,7 +185,7 @@ def start_edje(url,ids,userid):
 def start_find(url,userid):
     create_db()
     conn = get_connection()
-    cursor = conn.execute('SELECT id from apartment_sale_ads')
+    cursor = conn.execute(f'SELECT id from apartment_sale_ads where userid={userid}')
     ids = []
     for i in cursor:
         ids.append(i[0])
