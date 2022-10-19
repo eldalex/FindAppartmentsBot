@@ -1,27 +1,37 @@
-import requests
 import time
 from random import randint
-from selenium.webdriver.common.by import By
-import selenium.webdriver.edge
-import selenium.webdriver.chrome
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.edge.options import Options
-from selenium.webdriver.edge.service import Service
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.support import expected_conditions as EC
 import sqlite3
 import os
 
+def set_chrome_options() -> None:
+    capa = DesiredCapabilities.CHROME
+    capa["pageLoadStrategy"] = "none"
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument('--headless')
+    chrome_options.add_argument('--no-sandbox')
+    chrome_options.add_argument('--disable-dev-shm-usage')
+    chrome_options.add_argument('--allow-running-insecure-content')
+    chrome_options.add_argument('--ignore-certificate-errors')
+    chrome_options.add_argument('--window-size=1420,1080')
+    chrome_options.add_argument('--disable-gpu')
+    service = Service("/helperbot/chromedriver1")
+    # service = Service("/helperbot/chromedriver1")
+    # service = Service("C:\\Users\\Мура\\PycharmProjects\\homeproject\\chromedriver.exe")
+    return chrome_options,service,capa
 
 def get_connection():
-    connection = sqlite3.connect(f'{os.getcwd()}\home1.db')
+    connection = sqlite3.connect(f'{os.getcwd()}home1.db')
     return connection
 
 
 def create_db():
-    connection = sqlite3.connect(f'{os.getcwd()}\home1.db')
+    connection = sqlite3.connect(f'{os.getcwd()}home1.db')
     cursor = connection.cursor()
     cursor.execute(f"CREATE TABLE IF NOT EXISTS apartment_sale_ads "
                    f"(id integer, "
@@ -37,16 +47,10 @@ def create_db():
 
 
 def get_full_description(url):
-    capa = DesiredCapabilities.EDGE
-    capa["pageLoadStrategy"] = "none"
-    options = Options()
-    options.headless = False
-    options.add_argument('--allow-running-insecure-content')
-    options.add_argument('--ignore-certificate-errors')
-    service = Service("C:\\Users\\Мура\\PycharmProjects\\homeproject\\msedgedriver.exe")
-    driver = webdriver.Edge(options=options, service=service, capabilities=capa)
+    options,service,capa=set_chrome_options()
+    driver = webdriver.Chrome(options=options, service=service, desired_capabilities=capa)
     wait = WebDriverWait(driver, 30)
-    # driver.implicitly_wait(10)
+    print('get',url)
     driver.get(url)
     wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'style-item-params-list-item-aXXql')))
     driver.execute_script("window.stop();")
@@ -92,15 +96,8 @@ def check_ad(userid):
     listed_ad=[]
     for item in cursor:
         listed_ad.append(item[0])
-    options = Options()
-    options.headless = False
-    options.add_argument('--allow-running-insecure-content')
-    options.add_argument('--ignore-certificate-errors')
-    service = Service("C:\\Users\\Мура\\PycharmProjects\\homeproject\\msedgedriver.exe")
-    capa = DesiredCapabilities.EDGE
-    capa["pageLoadStrategy"] = "none"
-    driver = webdriver.Edge(options=options, service=service, capabilities=capa)
-    # driver.implicitly_wait(10)
+    options, service, capa = set_chrome_options()
+    driver = webdriver.Chrome(options=options, service=service, desired_capabilities=capa)
     for url in listed_ad:
         wait = WebDriverWait(driver, 30)
         try:
@@ -120,20 +117,13 @@ def check_ad(userid):
             print(f"url fail: {url}")
     driver.close()
 
-def start_edje(url,ids,userid):
+def start_chrome(url, ids, userid):
     cursor = get_connection().cursor()
-    # check_ad(userid)
-    options = Options()
-    options.headless = False
-    options.add_argument('--allow-running-insecure-content')
-    options.add_argument('--ignore-certificate-errors')
-    service = Service("C:\\Users\\Мура\\PycharmProjects\\homeproject\\msedgedriver.exe")
-    capa = DesiredCapabilities.EDGE
-    capa["pageLoadStrategy"] = "none"
-    driver = webdriver.Edge(options=options, service=service, capabilities=capa)
+    options, service, capa = set_chrome_options()
+    driver = webdriver.Chrome(options=options, service=service, desired_capabilities=capa)
     wait = WebDriverWait(driver, 30)
-    # driver.implicitly_wait(10)
     driver.get(url)
+    # time.sleep(30)
     wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'items-items-kAJAg')))
     driver.execute_script("window.stop();")
     time.sleep(2)
@@ -190,7 +180,7 @@ def start_find(url,userid):
     for i in cursor:
         ids.append(i[0])
     # avito = 'https://www.avito.ru/sankt-peterburg_peterhof/kvartiry/prodam/1-komnatnye/vtorichka-ASgBAQICAkSSA8YQ5geMUgFAyggUgFk?f=ASgBAQECA0SSA8YQ5geMUsDBDbr9NwFAyggUgFkCRYQJFXsiZnJvbSI6MzUsInRvIjpudWxsfcaaDBd7ImZyb20iOjAsInRvIjo1NTAwMDAwfQ'
-    start_edje(url,ids,userid)
+    start_chrome(url, ids, userid)
 
 def test_message():
     return 'testmessage'
