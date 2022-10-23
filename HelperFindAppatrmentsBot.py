@@ -9,7 +9,6 @@ import json
 import os
 from telebot import types
 
-TOKEN = "5764053396:AAEBFx3nES5oZ0hm1ejtqomTa3LfHKr4Zu4"
 bot = telebot.TeleBot(TOKEN)
 log = open('/homeproject/log.txt', 'a')
 log.write(f'------------------------------------------------------------\n')
