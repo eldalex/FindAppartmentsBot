@@ -110,11 +110,12 @@ def check_ad(userid, call):
         listed_ad.append(item[0])
     HelperFindAppatrmentsBot.send_message(call, f'Надо проверить {len(listed_ad)} объявлений.')
     count = len(listed_ad)
+    message_id = None
     options, service, capa = set_chrome_options()
     driver = webdriver.Chrome(options=options, service=service, desired_capabilities=capa)
     for url in listed_ad:
         try:
-            HelperFindAppatrmentsBot.send_message(call, f'Осталось {count} объявлений.')
+            message_id = HelperFindAppatrmentsBot.send_message(call, f'Осталось {count} объявлений.', message_id)
             wait = WebDriverWait(driver, 30)
             driver.get(url)
             wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'style-item-view-PCYlM')))
@@ -160,12 +161,13 @@ def start_chrome(url, ids, userid, call):
 
     HelperFindAppatrmentsBot.send_message(call, f'нашел  {len(suggestions)} объявлений. из них новых {len(new_ad)}')
     count = len(new_ad)
+    message_id = None
     for element in suggestions:
         try:
             url_home = element.find_element(By.TAG_NAME, 'a').get_property('href')
             id = url_home[url_home.rfind('_') + 1:]
             if id in new_ad:
-                HelperFindAppatrmentsBot.send_message(call, f'Собираю информацию\nОсталось еще {count} объявлений')
+                message_id = HelperFindAppatrmentsBot.send_message(call, f'Собираю информацию\nОсталось еще {count} объявлений', message_id)
                 small_desc = element.text.replace('"', "").replace("'", "")
                 full_description, price = get_full_description(url_home)
                 cursor.execute(f'INSERT INTO apartment_sale_ads ('
@@ -197,6 +199,7 @@ def start_chrome(url, ids, userid, call):
             else:
                 pass
         except Exception as er:
+            count -= 1
             print(er)
             pass
     cursor.connection.commit()

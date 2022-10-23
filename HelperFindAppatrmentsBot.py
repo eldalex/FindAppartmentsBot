@@ -9,7 +9,7 @@ import json
 import os
 from telebot import types
 
-
+TOKEN = "5764053396:AAEBFx3nES5oZ0hm1ejtqomTa3LfHKr4Zu4"
 bot = telebot.TeleBot(TOKEN)
 log = open('/homeproject/log.txt', 'a')
 log.write(f'------------------------------------------------------------\n')
@@ -223,9 +223,13 @@ def start_find(userid, call):
     Scrapping.start_find(url, userid, call)
 
 
-def send_message(call, mess):
-    res = bot.send_message(call.message.chat.id, mess)
-    # bot.delete_message(call.message.chat.id, res.id - 2)
+def send_message(call, mess, mess_id=None):
+    if mess_id is None:
+        mess_id = bot.send_message(call.message.chat.id, mess).id
+
+    else:
+        bot.edit_message_text(mess, call.message.chat.id, mess_id)
+    return mess_id
 
 
 def create_table():

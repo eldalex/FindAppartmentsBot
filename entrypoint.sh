@@ -13,5 +13,5 @@ service ssh start
 #sleep infinity
 
 # link auth.log to container log
-#python3 $APP_HOME/HelperFindAppatrmentsBot.py
-python3 $APP_HOME/main.py
+python3 $APP_HOME/HelperFindAppatrmentsBot.py
+#python3 $APP_HOME/main.py
